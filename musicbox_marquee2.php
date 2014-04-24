@@ -97,7 +97,7 @@
 <body id="bdy">
 
 <div id="style-panel">
-	<div id="star" class="btn btn-default glyphicon glyphicon-star"> </div>
+	<div id="star" class="btn btn-default glyphicon glyphicon-star" onclick="ChangeCSS()";> </div>
 </div>
 
 <audio id="player" src="music/%E3%80%90GUMI%E3%80%91%E8%A2%AB%E5%AE%B3%E5%A6%84%E6%83%B3%E6%90%BA%E5%B8%AF%E5%A5%B3%E5%AD%90%EF%BC%88%E7%AC%91%EF%BC%89%E3%80%90%E3%82%AA%E3%83%AA%E3%82%B8%E3%83%8A%E3%83%AB%E3%80%91.mp3">
@@ -123,22 +123,18 @@ Try to use chrome?<br>
 <script language="javascript">
 var g_playlist = [
 <?php
-	$res = "";
 	$path = './music';
 	$dir = opendir($path);
 	$first = true;
 	while(false !== ($file = readdir($dir))){
 		if($file != "." && $file != ".."){
 			if(!is_dir($path."/".$file)){
-				echo(sprintf("%s{url: 'music/%s', name: '%s'}\n", $first?"":"," , urlencode($file), addslashes(substr($file, 0, strlen($file)-4))));
+				echo(sprintf("%s{url: 'music/%s', name: '%s'%s}\n",
+							$first?"":",",
+							urlencode($file),
+							addslashes(substr($file, 0, strlen($file)-4)),
+							isset($_GET["q"])&&strpos($file, $_GET["q"])!==false?",init: true":"" ));
 				$first = false;
-				if(isset($_GET["q"])){
-					$tmp = strpos($file, $_GET["q"]);
-					if($tmp !== false){
-						// get path of $file
-						$res = "music/" . urlencode($file);
-					}
-				}
 			}
 		}
 	}
@@ -237,14 +233,14 @@ progress_bar.addEventListener('click' ,function(event){
 }
 
 {
-	star.addEventListener('click', function(e){
+	function ChangeCSS(){
 		var old = document.getElementsByTagName("link")[1];
 		var lnk = document.createElement("link");
 		lnk.setAttribute("type", "text/css");
 		lnk.setAttribute("rel", "stylesheet");
 		lnk.setAttribute("href", "css/" + (old.href.search("night") != -1 ?"day":"night") + ".css");
 		old.parentNode.replaceChild(lnk, old);
-	});
+	}
 }
 
 {
@@ -280,9 +276,7 @@ progress_bar.addEventListener('click' ,function(event){
 		x.className = "playitem playable";
 		x.innerText = name;
 		x.url = url;
-		x.addEventListener('click', function(event){
-			playlist.play(this);
-		});
+		x.setAttribute("onclick", "playlist.play(this);");
 		x.addEventListener('mousedown', function(e){
 			if(!g_movingTar){
 				if(playlist.pressTimer) clearTimeout(playlist.pressTimer);
@@ -402,16 +396,19 @@ progress_bar.addEventListener('click' ,function(event){
 		}
 	};
 
+	var initialItem = null;
 	for(var idx in g_playlist){
-		playlist.addPlayItem(createPlayItem(g_playlist[idx].name, g_playlist[idx].url));
+		var x = createPlayItem(g_playlist[idx].name, g_playlist[idx].url);
+		playlist.addPlayItem(x);
+		if(g_playlist[idx].init) initialItem = x;
 	}
 	playlist.addPlayItem(createItemPlacer());
 	playlist.setLastPlacer();
+	if(initialItem) playlist.play(initialItem);
 }
 
 
 </script>
-<?php if($res != ""){ echo "<script>play('".$res."');</script>"; } ?>
 </body>
 
 </html>
