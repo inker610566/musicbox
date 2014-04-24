@@ -125,7 +125,7 @@ var g_playlist = [
 	while(false !== ($file = readdir($dir))){
 		if($file != "." && $file != ".."){
 			if(!is_dir($path."/".$file)){
-				echo(sprintf("%s{url: '%s', name: '%s'}\n", $first?"":"," , urlencode($file), addslashes(substr($file, 0, strlen($file)-4))));
+				echo(sprintf("%s{url: 'music/%s', name: '%s'}\n", $first?"":"," , urlencode($file), addslashes(substr($file, 0, strlen($file)-4))));
 				$first = false;
 				if(isset($_GET["q"])){
 					$tmp = strpos($file, $_GET["q"]);
@@ -143,14 +143,28 @@ var g_playlist = [
 <script langauge="javascript">
 
 function play(tar){
-	tar = tar.replace(/\+/g, "%20");
+}
+
+playlist.play = function(x){
+	if(playlist.prev_play_item)
+	{
+		playlist.prev_play_item.className = playlist.prev_play_item.className.replace(" playing-item", "");
+		var text = playlist.prev_play_item.getElementsByTagName("marquee")[0].innerText;
+		playlist.prev_play_item.innerText = text;
+	}
+	x.className = x.className + " playing-item";
+	var text = x.innerText;
+	x.innerHTML = "<marquee style='width: 300px;' direction='right'>" + text + "</marquee>";
+	playlist.prev_play_item = x;
+	var tar = x.url.replace(/\+/g, "%20");
 	player.pause();
 	setTimeout(function(){player.setAttribute("src", tar); player.play();}, 1000);
 }
-
 // player
 player.addEventListener('ended', function(){
-	this.play();
+	if(playlist.prev_play_item.nextSibling.nextSibling.url){
+		playlist.play(playlist.prev_play_item.nextSibling.nextSibling);
+	}
 }, false);
 
 player.addEventListener('pause', function(e){
@@ -190,11 +204,6 @@ progress_bar.addEventListener('click' ,function(event){
 	player.currentTime =
 	player.duration * (event.clientX - this.getBoundingClientRect().left) / this.clientWidth;
 }, false);
-
-// play-list
-{
-	var items = playlist.getElementsByTagName("div");
-}
 
 // volume_bar
 {
@@ -244,18 +253,12 @@ progress_bar.addEventListener('click' ,function(event){
 			// offset 50, 50
 			g_movingTar.style.left = (e.clientX + 20) + "px";
 			g_movingTar.style.top = (e.clientY + 10) + "px";
-			if(!e.in_p && playlist.activePlacer){
-				playlist.handleMouseExit();
-			}
+			if(!e.in_p && playlist.activePlacer) playlist.handleMouseExit();
 		}
 	});
 	bdy.addEventListener('mouseup', function(e){
 		if(playlist.pressTimer) clearTimeout(playlist.pressTimer);
-		/*if(g_movingTar){
-			g_movingTar.dispatchEvent(cloneMouseEvent(e));
-		}*/
 	});
-
 
 	function createSeparator(){
 		//echo "<div class='playitem-separator'></div>";
@@ -263,24 +266,14 @@ progress_bar.addEventListener('click' ,function(event){
 		x.className = "playitem-separator";
 		return x;
 	}
-	var prev_play_item = null;
+
 	function createPlayItem(name, url){
 		var x = document.createElement("div");
 		x.className = "playitem playable";
 		x.innerText = name;
 		x.url = url;
 		x.addEventListener('click', function(event){
-			if(prev_play_item)
-			{
-				prev_play_item.className = prev_play_item.className.replace("playing-item", "");
-				var text = prev_play_item.getElementsByTagName("marquee")[0].innerText;
-				prev_play_item.innerText = text;
-			}
-			this.className = this.className + " playing-item";
-			var text = this.innerText;
-			this.innerHTML = "<marquee style='width: 300px;' direction='right'>" + text + "</marquee>";
-			prev_play_item = this;
-			play("music/" + this.url);
+			playlist.play(this);
 		});
 		x.addEventListener('mousedown', function(e){
 			if(!g_movingTar){
@@ -342,9 +335,9 @@ progress_bar.addEventListener('click' ,function(event){
 				}
 			}
 		});
-		// onmovelistener
 		return x;
 	}
+
 	function createItemPlacer(){
 		var x = document.createElement("div");
 		x.className = "playitem placer-inactive";
