@@ -165,6 +165,9 @@ player.addEventListener('ended', function(){
 	if(playlist.prev_play_item.nextSibling.nextSibling.url){
 		playlist.play(playlist.prev_play_item.nextSibling.nextSibling);
 	}
+	else{
+		playlist.play(playlist.firstElementChild.nextSibling);
+	}
 }, false);
 
 player.addEventListener('pause', function(e){
@@ -250,9 +253,9 @@ progress_bar.addEventListener('click' ,function(event){
 	}
 	bdy.addEventListener('mousemove', function(e){
 		if(g_movingTar){
-			// offset 50, 50
-			g_movingTar.style.left = (e.clientX + 20) + "px";
-			g_movingTar.style.top = (e.clientY + 10) + "px";
+			// offset 20, 10
+			g_movingTar.style.left = (e.pageX + 20) + "px";
+			g_movingTar.style.top = (e.pageY + 10) + "px";
 			if(!e.in_p && playlist.activePlacer) playlist.handleMouseExit();
 		}
 	});
@@ -284,8 +287,8 @@ progress_bar.addEventListener('click' ,function(event){
 					p.removeChild(div.previousSibling);
 					p.removeChild(div);
 					div.className = div.className + " moving";
-					div.style.left = (e.clientX + 50) + "px";
-					div.style.top = (e.clientY + 50) + "px";
+					div.style.left = (e.pageX + 20) + "px";
+					div.style.top = (e.pageY + 10) + "px";
 					bdy.appendChild(div);
 					g_movingTar = div;
 					var e2 = document.createEvent("MouseEvents");
