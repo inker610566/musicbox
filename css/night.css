@@ -1,0 +1,47 @@
+body{
+	background: black;
+}
+
+#progress_bar{
+	background: rgba(25, 25, 25, 1);
+}
+
+#played_progress{
+	background: rgb(120, 49, 20);
+}
+
+#buffered_progress{
+	background: rgba(150, 150, 150, 1);
+}
+
+.control-button{
+	background: black;
+	color: rgb(204, 204, 204);
+}
+
+.playitem-seperator{
+	background: rgb(25, 25, 25);
+}
+
+.playitem{
+	color: white;
+}
+
+.playing-item{
+	background: rgb(63, 63, 63);
+	color: black;
+}
+
+.vbar-on{
+	//background: LawnGreen;
+	background: rgb(120, 49, 20);
+}
+
+.vbar-off{
+	background: rgba(25, 25, 25, 1);
+}
+
+#star{
+	background: black;
+	color: yellow;
+}
