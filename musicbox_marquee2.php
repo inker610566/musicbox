@@ -46,6 +46,11 @@
 	height: 30px;
 	white-space: nowrap;
 	padding: 5px;
+	-moz-user-select: -moz-none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 .playable{
