@@ -1,3 +1,6 @@
+<?php
+header("Content-Type:text/html; charset=utf-8");
+?>
 <html>
 
 <head>
@@ -150,11 +153,11 @@ playlist.play = function(x){
 	if(playlist.prev_play_item)
 	{
 		playlist.prev_play_item.className = playlist.prev_play_item.className.replace(" playing-item", "");
-		var text = playlist.prev_play_item.getElementsByTagName("marquee")[0].innerText;
-		playlist.prev_play_item.innerText = text;
+		var text = playlist.prev_play_item.getElementsByTagName("marquee")[0].textContent;
+		playlist.prev_play_item.textContent = text;
 	}
 	x.className = x.className + " playing-item";
-	var text = x.innerText;
+	var text = x.textContent;
 	x.innerHTML = "<marquee style='width: 300px;' direction='right'>" + text + "</marquee>";
 	playlist.prev_play_item = x;
 	var tar = x.url.replace(/\+/g, "%20");
@@ -274,7 +277,7 @@ progress_bar.addEventListener('click' ,function(event){
 	function createPlayItem(name, url){
 		var x = document.createElement("div");
 		x.className = "playitem playable";
-		x.innerText = name;
+		x.textContent = name;
 		x.url = url;
 		x.setAttribute("onclick", "playlist.play(this);");
 		x.addEventListener('mousedown', function(e){
@@ -305,27 +308,22 @@ progress_bar.addEventListener('click' ,function(event){
 				var x = createItemPlacer();
 				x.active();
 				if(playlist.activePlacer){
-					console.log("Switch Placer");
 					// replace itself with placer
 					playlist.replaceChild(x, this);
 					// replaced with previous placer
 					if(playlist.activePlacer == playlist.lastChild)
 					{
-						console.log("prev placer is lastChild, insert a new placer");
 						playlist.insertBefore(this, playlist.lastChild);
 						playlist.insertBefore(createSeparator(), playlist.lastChild);
 						playlist.lastChild.inactive();
 					}
 					else
 					{
-						console.log("replace with prev placer");
 						playlist.replaceChild(this, playlist.activePlacer);
 					}
 					playlist.activePlacer = x;
 				}
 				else{
-					console.log("First Enter Playlist, insertBefore");
-					console.log(this.innerText);
 					playlist.insertBefore(playlist.activePlacer = x, this);
 					playlist.insertBefore(createSeparator(), this);
 				}
@@ -336,7 +334,7 @@ progress_bar.addEventListener('click' ,function(event){
 					playlist.setLastPlacer();
 				}
 			}
-		});
+        });
 		return x;
 	}
 
@@ -398,8 +396,8 @@ progress_bar.addEventListener('click' ,function(event){
 
 	var initialItem = null;
 	for(var idx in g_playlist){
-		var x = createPlayItem(g_playlist[idx].name, g_playlist[idx].url);
-		playlist.addPlayItem(x);
+        var x = createPlayItem(g_playlist[idx].name, g_playlist[idx].url);
+        playlist.addPlayItem(x);
 		if(g_playlist[idx].init) initialItem = x;
 	}
 	playlist.addPlayItem(createItemPlacer());
