@@ -11,8 +11,10 @@ header("Content-Type:text/html; charset=utf-8");
 <style>
 #progress_bar {
 	position: absolute;
-	width: 300px;
-	height: 30px;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
 	cursor: pointer;
 	z-index: 1;
 	overflow: hidden;
@@ -22,7 +24,6 @@ header("Content-Type:text/html; charset=utf-8");
 #played_progress {
 	height: 100%;
 	cursor: pointer;
-	z-index: 2;
 	background: skyblue;
 }
 
@@ -45,6 +46,9 @@ header("Content-Type:text/html; charset=utf-8");
 	clear: left;
 }
 
+.playing-item{
+	position: relative;
+}
 
 .playitem{
 	width: 300px;
@@ -148,6 +152,7 @@ playlist.play = function(x){
 	if(playlist.prev_play_item)
 	{
 		playlist.prev_play_item.className = playlist.prev_play_item.className.replace(" playing-item", "");
+		playlist.prev_play_item.removeChild(progress_bar);
 		var text = playlist.prev_play_item.getElementsByTagName("marquee")[0].textContent;
 		playlist.prev_play_item.textContent = text;
 	}
@@ -158,9 +163,8 @@ playlist.play = function(x){
 	var tar = x.url.replace(/\+/g, "%20");
 
 	var pro = progress_bar || createProgressBar();
-	pro.style.left = x.getBoundingClientRect().left;
-	pro.style.top = x.getBoundingClientRect().top;
 	pro.progress.style.width = "0%";
+	x.appendChild(pro);
 
 	player.pause();
 	setTimeout(function(){player.setAttribute("src", tar); player.play();}, 1000);
@@ -192,7 +196,9 @@ function createProgressBar(){
 	pro.addEventListener('click' ,function(event){
 		player.currentTime =
 		player.duration * (event.clientX - this.getBoundingClientRect().left) / this.clientWidth;
+		event.stopPropagation();
 	}, false);
+	pro.addEventListener('mousedown' ,function(e){e.stopPropagation();});
 	bdy.appendChild(pro);
 	progress_bar = pro;
 	return pro;

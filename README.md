@@ -15,10 +15,6 @@ TODO:
 	* Support for mobile.
 	* Add a tutorial mode.
 
-KNOWN BUG:
-
-	* After progress bar cover onto playing item, swap list can displace the progress-bar
-
 Vision Feature:
 
 	* Add a DJ control program.
