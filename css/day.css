@@ -1,9 +1,5 @@
-#progress_bar{
-	background: rgba(230, 230, 230, 1);
-}
-
 #played_progress{
-	background: skyblue;
+	background: rgba(135,206,235,0.5);
 }
 
 #buffered_progress{

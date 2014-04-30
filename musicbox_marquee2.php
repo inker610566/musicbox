@@ -10,18 +10,20 @@ header("Content-Type:text/html; charset=utf-8");
 
 <style>
 #progress_bar {
-	margin: 20px;
-	width: 200px;
-	height: 4px;
+	position: absolute;
+	width: 300px;
+	height: 30px;
+	cursor: pointer;
+	z-index: 1;
 	overflow: hidden;
 	cursor: pointer;
 }
 
 #played_progress {
-	z-index: 2;
-	width: 0%;
-	height: 4px;
+	height: 100%;
 	cursor: pointer;
+	z-index: 2;
+	background: skyblue;
 }
 
 #buffered_progress {
@@ -108,12 +110,6 @@ FireFox GG!!<br>
 Try to use chrome?<br>
 </audio>
 
-
-<div id="progress_bar">
-	<div id="played_progress"> </div>
-	<div id="buffered_progress"> </div>
-</div>
-
 <div style="margin: 10px;">
 	<div id="back_button" class="glyphicon glyphicon-backward btn btn-default control-button"></div>
 	<div id="play_button" class="glyphicon glyphicon-play btn btn-default control-button"></div>
@@ -146,8 +142,7 @@ var g_playlist = [
 </script>
 <script langauge="javascript">
 
-function play(tar){
-}
+var progress_bar;
 
 playlist.play = function(x){
 	if(playlist.prev_play_item)
@@ -161,6 +156,12 @@ playlist.play = function(x){
 	x.innerHTML = "<marquee style='width: 300px;' direction='right'>" + text + "</marquee>";
 	playlist.prev_play_item = x;
 	var tar = x.url.replace(/\+/g, "%20");
+
+	var pro = progress_bar || createProgressBar();
+	pro.style.left = x.getBoundingClientRect().left;
+	pro.style.top = x.getBoundingClientRect().top;
+	pro.progress.style.width = "0%";
+
 	player.pause();
 	setTimeout(function(){player.setAttribute("src", tar); player.play();}, 1000);
 }
@@ -182,13 +183,28 @@ player.addEventListener('play', function(){
 	play_button.className = play_button.className.replace("glyphicon-play", "glyphicon-pause");
 }, false);
 
+function createProgressBar(){
+	var pro = document.createElement("div");
+	pro.id = "progress_bar";
+	pro.appendChild(pro.progress = document.createElement("div"));
+	pro.progress.id = "played_progress";
+	pro.progress.style.width = "0%";
+	pro.addEventListener('click' ,function(event){
+		player.currentTime =
+		player.duration * (event.clientX - this.getBoundingClientRect().left) / this.clientWidth;
+	}, false);
+	bdy.appendChild(pro);
+	progress_bar = pro;
+	return pro;
+}
+
 player.addEventListener('timeupdate', function(){
-	played_progress.style.width = (this.currentTime / this.duration) * 100 + '%';
+	if(progress_bar) progress_bar.progress.style.width = (this.currentTime / this.duration) * 100 + '%';
 }, false);
 
 player.addEventListener('progress', function(){
-	var endVal = this.seekable && this.seekable.length ? this.seekable.end(0) : 0;
-	buffered_progress.style.width = (endVal / this.duration) * 100 + '%';
+	//var endVal = this.seekable && this.seekable.length ? this.seekable.end(0) : 0;
+	//buffered_progress.style.width = (endVal / this.duration) * 100 + '%';
 }, false);
 
 // play_button
@@ -204,12 +220,6 @@ play_button.addEventListener('click' ,function(event){
 // back_button
 back_button.addEventListener('click', function(event){
 	player.currentTime = 0;
-}, false);
-
-// progress_bar
-progress_bar.addEventListener('click' ,function(event){
-	player.currentTime =
-	player.duration * (event.clientX - this.getBoundingClientRect().left) / this.clientWidth;
 }, false);
 
 // volume_bar
