@@ -1,0 +1,6 @@
+{% block CALL_MY_NAME %}
+	{% block INNER_CALL_MY_NAME %}
+		This is inner of player.
+	{% endblock %}
+	<br> I'm player.
+{% endblock %}

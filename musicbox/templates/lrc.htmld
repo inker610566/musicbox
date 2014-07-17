@@ -1,0 +1,9 @@
+{% extends plrc %}
+{% block INNER_CALL_MY_NAME %}
+	{{ super() }}
+	This is inner of lrc.
+{% endblock %}
+{% block CALL_MY_NAME %}
+	{{ super() }}
+	<br> I'm tag, my parent is {{ plrc}}.
+{% endblock %}

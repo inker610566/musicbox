@@ -1,0 +1,66 @@
+{#
+param:
+	tag
+#}
+{% block TAG_MAIN %}
+<script langauge="javascript">
+function getTaglist(callback, songid){
+	$.ajax({url: "/musicbox/api/tag?sid="+songid, type: 'GET',
+		xhr: function() {
+			var myXhr = $.ajaxSettings.xhr();
+			toggleProgressbar("<progress></progress>");
+			if(myXhr.upload) myXhr.upload.addEventListener('progress',progressHandlingFunction, false);
+			return myXhr;
+		},
+		//Options to tell jQuery not to process data or worry about content-type.
+		cache: false,
+		contentType: false,
+		processData: false
+	})
+	.done(function(html){
+		callback(JSON.parse(html));
+		hiddenProgressbar();		
+	});
+}
+
+function addNewTag(obj){
+	var node = $("<li class=\"tag\"><a>"+obj.name+"</a></li>");
+	node.get(0).obj = obj;
+	node.get(0).addEventListener("click", function(){
+		// choose location to render_player
+		var can = [], pts = [];
+		$(".player").each(function(){ can.push(this.getBoundingClientRect()); });
+		can.forEach(function(r){
+			pts.push({x: r.right+30, y: r.top});
+			pts.push({x: r.left, y: r.bottom+30});
+		});
+		pts.sort(function(p1, p2){return Math.max(p1.x, p1.y) - Math.max(p2.x, p2.y);});
+		for(idx in pts)
+			if(can.every(function(r){
+				return !(r.left <= pts[idx].x && pts[idx].x <= r.right && r.top <= pts[idx].y && pts[idx].y <= r.bottom);
+			})){
+				pts = pts[idx];
+				break;
+			}
+		getSonglist(function(objs){
+			render_player(objs, pts.x, pts.y);
+		}, this.obj.id);
+	});
+	$("#taglist").append(node);
+}
+
+function render_taglist(objs){
+	{% block RENDER_TAGLIST %}
+	$("#taglist").empty();
+	for(var key in objs)
+		addNewTag(objs[key]);
+	{% endblock %}
+}
+</script>
+<style>
+	#taglist{ padding: 10px; }
+	.tag { display: inline-block; cursor: pointer; list-style-type: none; border: 1px solid #92abe7; border-radius: 0.5em; margin: 5px; padding: 5px; background: linear-gradient(#e8f3ff, #afc2ef);}
+	.tag>a{text-decoration: none; }
+</style>
+<ul id="taglist"></ul>
+{% endblock %}

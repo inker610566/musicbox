@@ -1,0 +1,47 @@
+Control
+	Player
+		Playlist
+		AudioPlayer
+			view -- Audio
+			ProgressBar
+			ControlPanel
+View
+	
+		
+
+
+audio
+	EVENT
+		pause
+			TODO: change '''play_button(control_panel)''' icon
+		play
+			TODO: change '''play_button(control_panel)''' icon
+		timeupdate
+			TODO: set '''progress_bar''' show percent
+		ended
+			TODO: see which loop-type to make '''player''' play next song('''playlist''')
+	GETTER
+		duration
+			Case 1: '''progress_bar''' hit: currentTime = duration * percent %
+	SETTER
+		currentTime
+			Case 1: '''progress_bar''' hit
+			Case 2: when '''back_button(control_panel)'''n pressed
+		src
+			Case 1: when '''player''' play new song, change its src
+		volume
+			Case 1: when '''volume_bar(control_panel)''' pressed
+	
+	CONTROL
+		pause
+			Case 1: before '''player''' play, pause it first
+		play
+			Case 1: '''play_button(control_panel)''' pressed ****
+		pause
+			Case 1: '''play_button(control_panel)''' pressed ****
+
+
+->
+	SETTER
+		seekToPercent
+		seekToSec?

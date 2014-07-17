@@ -1,0 +1,29 @@
+#played_progress{
+	background: rgba(135,206,235,0.5);
+}
+
+#buffered_progress{
+	background: rgba(150, 150, 150, 1);
+}
+
+.playitem-separator{
+	background: rgb(230,230,230);
+}
+
+.playing-item{
+	background: silver;
+	color: white;
+}
+
+.vbar-on{
+	//background: LawnGreen;
+	background: skyblue;
+}
+
+.vbar-off{
+	background: rgba(230, 230, 230, 1);
+}
+
+#star{
+	color: rgb(210, 210, 210);
+}

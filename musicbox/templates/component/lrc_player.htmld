@@ -1,0 +1,16 @@
+{% extends p_lrc_player %}
+
+{% block PLAYER_MEMBER%}
+	{{ super() }}
+	var LrcPlayer = null;
+{% endblock %}
+
+{% block PLAY_NEW %}
+if(item.get(0).obj.lrc){
+	getLrc(function(html){
+		LrcPlayer = new Lrc(html, function(line){
+		});
+		{{ super() }}
+	}, item.get(0).obj.lrc);
+}
+{% endblock %}

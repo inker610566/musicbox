@@ -1,0 +1,48 @@
+body{
+	background: black;
+}
+
+#buffered_progress{
+	background: rgba(150, 150, 150, 1);
+}
+
+.played-progress{
+	background: rgba(255, 255, 255, 0.5);
+}
+
+.control-button{
+	background: black;
+	color: rgb(204, 204, 204);
+}
+
+
+.playitem-separator{
+	background: rgb(230, 230, 230);
+}
+
+.playitem{
+	color: white;
+}
+
+.playing-item{
+	background: rgb(63, 63, 63);
+	color: gold;
+}
+
+.vbar-on{
+	//background: LawnGreen;
+	background: rgb(120, 49, 20);
+}
+
+.vbar-off{
+	background: rgba(25, 25, 25, 1);
+}
+
+#star{
+	background: black;
+	color: yellow;
+}
+
+.placer-active{
+	background: gold;
+}

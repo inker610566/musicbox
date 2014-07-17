@@ -1,0 +1,33 @@
+<HTML>
+<HEAD>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script langauge="javascript">
+function init(){
+	$("#send").click(
+		function(){
+			$.ajax("../api/tag/" + encodeURIComponent($('#result').val())).
+			done(
+				function(html){
+					var obj = JSON.parse(html);
+					var r = html + "<BR>";
+
+					for(var key in obj){
+						r += "attr: " + key + "<BR>";
+						r += "val: " + obj[key] + "<BR>";
+					}
+					document.write(r);
+				}
+			);
+		}
+	);
+}
+</script>
+</HEAD>
+<BODY onclick="init()">
+<BUTTON id=send>
+Click
+</BUTTON>
+<TEXTAREA id=result>
+</TEXTAREA>
+</BODY>
+</HTML>

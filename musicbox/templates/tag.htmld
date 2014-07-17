@@ -1,0 +1,5 @@
+{% extends ptag %}
+{% block CALL_MY_NAME %}
+	{{ super() }}
+	<br> I'm tag, my parent is {{ ptag }}.
+{% endblock %}

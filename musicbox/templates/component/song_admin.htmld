@@ -1,0 +1,98 @@
+{#
+params:
+	songs : array of song
+	untrack_files : array of str
+#}
+{% set default_file_path = "/static/music/" %}
+<style>
+#admin_songlist{
+	position: absolute;
+	left: 400px;
+	top: 50px;
+}
+#admin_songlist_table{
+	border: 1px solid gray;
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+td, th{
+	padding: 10px;
+	min-width: 50px;
+	border: 1px solid gray;
+	text-align: center;
+	margin: 0;
+}
+th{
+background: gray;
+}
+.untracked-row{ background: pink; }
+.tracked-row{ background: skyblue; }
+</style>
+<script>
+/*function getUntrackedSong(){
+	$.ajax({url: "/musicbox/api/song?untracked", type: 'GET',
+		xhr: function() {
+			var myXhr = $.ajaxSettings.xhr();
+			toggleProgressbar("<progress id=\"new_song_progress\"></progress>");
+			if(myXhr.upload) myXhr.upload.addEventListener('progress',progressHandlingFunction, false);
+			return myXhr;
+		},
+		data: data,
+		//Options to tell jQuery not to process data or worry about content-type.
+		cache: false,
+		contentType: false,
+		processData: false
+	})
+	.done(function(html){
+		hiddenProgressbar();		
+		console.log(html);
+	});
+}*/
+
+function postAddNewSong(force){
+	if(song_loc.value.length == 0) throw "Null File";
+	var data = new FormData($("form[name='new_song_form']")[0]);
+	if(force) data.append("force", "");
+	//console.log(data);
+	$.ajax({url: "/musicbox/api/song", type: 'POST',
+		xhr: function() {
+			var myXhr = $.ajaxSettings.xhr();
+			toggleProgressbar("<progress id=\"new_song_progress\"></progress>");
+			if(myXhr.upload) myXhr.upload.addEventListener('progress',progressHandlingFunction, false);
+			return myXhr;
+		},
+		data: data,
+		//Options to tell jQuery not to process data or worry about content-type.
+		cache: false,
+		contentType: false,
+		processData: false
+	})
+	.done(function(html){
+		console.log(html);
+		res = /Failed\(([^)]*)/.exec(html);
+		if(res){
+			res = res[1];
+			if(res != "file exists") alert(res);
+			else if(confirm("File exists! force upload?")){
+				postAddNewSong(true);
+				return;
+			}
+		}
+		hiddenProgressbar();
+	});
+}
+</script>
+<div id="admin_songlist">
+	<table id="admin_songlist_table">
+	<tr><th></th><th>id</th><th>name</th><th>location</th><th>image</th></tr>
+	{% for song in songs: %}
+	<tr class="tracked-row"><td><button>Delete</button></td><td>{{ song.id }}</td><td>{{ song.name }}</td><td>{{ song.location }}</td><td>{{ song.image }}</td></tr>
+	{% endfor %}
+	{% for f in untrack_files: %}
+	<tr class="untracked-row"><td></td><td>{{ f }}</td><td>{{ default_file_path + f }}</td><td></td><td></td></tr>
+	{% endfor %}
+	<form name="new_song_form" method="POST" enctype="multipart/form-data">
+	<tr><td><button onclick="postAddNewSong(); return false;">submit</button></td><td></td><td><input id="song_name" name="name" type=text></td><td><input id="song_loc" name="location" type=file></td><td><input id="image_loc" name="image" type=file></td></tr>
+	</form>
+	</table>
+</div>

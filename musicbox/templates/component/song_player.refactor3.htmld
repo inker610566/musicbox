@@ -1,0 +1,504 @@
+{#
+	The base of player decorator
+	{% block CSS_PROGRESSBAR %}
+	{% block CSS_MISCELLANEOUS %}
+	{% block CSS_PLAYING_ITEM %}
+
+	class player
+		{% block PLAYER_MEMBER %}
+		{% block PLAY_NEW %}
+			var item
+			{% block RENDER_NEW_PLAYING_ITEM %}
+				var progress_bar
+			{% endblock %}
+		{% endblock %}
+		{% block PLAY_START %}
+		{% block PLAY_STOP %}
+		{% block PLAY_SEEK %}
+			var newSeekTime
+		{% endblock %}
+#}
+<style>
+.control-button{
+	margin: 10px;
+	float: left;
+	background: none;
+}
+
+.function-button{
+	margin: 10px;
+	float: right;
+}
+
+.playlist{
+margin: 10px;
+width: 300px;
+overflow: hidden;
+clear: left;
+}
+
+.volume-bar{
+float: left;
+margin: 8px;
+cursor: pointer;
+}
+
+.vbar{
+width: 5px;
+float: left;
+margin: 2px;
+}
+
+.placer-active{
+background: gold;
+}
+
+.moving{
+position: absolute;
+background: pink;
+border: 1px solid white;
+}
+
+.vbar-on{
+	//background: LawnGreen;
+	background: rgb(120, 49, 20);
+}
+
+.vbar-off{
+	background: rgba(25, 25, 25, 1);
+}
+
+#star{
+	background: black;
+	color: yellow;
+}
+
+.player{
+	position: absolute;
+	width: 350px;
+	background: rgba(255,255,255, 0.15);
+	border-radius: 20px;
+}
+.loop-single:before{content:"\e115";}
+.loop-single:after{content:"1";}
+.loop:before{content:"\e115";}
+.loop-random:before{content:"\e110";}
+.non-loop:before{content:"\e115"; color: rgba(204, 204, 204,0.5);}
+.back-button:before{content:"\e071";}
+.play-button:before{content:"\e072";}
+.pause-button:before{content:"\e073";}
+.save-button:before{content:"\e081";}
+.close-button:before{content:"\e083";}
+.played-progress{height: 100%;}
+.function-panel{
+width: 100%; background: rgba(255,200,100, 1); position: absolute;
+border-radius: 20px 20px 0 0; overflow: hidden;
+}
+{% block CSS_PROGRESSBAR %}
+.mprogress-bar {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	z-index: 1;
+	overflow: hidden;
+}
+{% endblock CSS_PROGRESSBAR %}
+
+{% block CSS_PLAYING_ITEM %}
+.playing-item{
+	height: 36px;
+	color: gold;
+}
+.playitem{
+cursor: pointer;
+width: 300px;
+		white-space: nowrap;
+		 -moz-user-select: -moz-none;
+		 -khtml-user-select: none;
+		 -webkit-user-select: none;
+		 -ms-user-select: none;
+		 user-select: none;
+	color: white;
+	border-top: 1px solid white;
+	user-select: none;
+}
+.playing-item{
+	background: rgb(63, 63, 63);
+}
+.np-item{
+	height: 35px;
+	padding: 5px;
+}
+.item-title{
+	height: 100%;
+	width: 100%;
+	position: relative;
+	background: rgb(63, 63, 63);
+	color: gold;
+}
+.item-marquee{
+padding: 5px;
+width: 100%;
+height: 100%;
+}
+{% endblock CSS_PLAYING_ITEM %}
+
+{% block CSS_MISCELLANEOUS %}
+{% endblock CSS_MISCELLANEOUS %}
+</style>
+<body>
+</body>
+<script src="/musicbox/static/js/lrc.js"></script>
+<script>
+/*
+   Style 1: use global param set
+		var g_player_params = {
+			g_selected_player: null,
+			g_moving_player: null ...
+		};
+	Style 2: OO and value passing
+*/
+
+var player = (function(){
+	{#  static initialization #}
+	var g_moving = null;
+	var g_moving_player = null;
+	var g_selected_player = null;
+	var g_activePlacer = null;
+	var g_counter = [];
+	$("body").get(0).addEventListener("mousemove", function(e){
+		if(g_moving != null){
+			g_moving.css("left", e.pageX + 20);
+			g_moving.css("top", e.pageY + 10);
+			if(!e.in_p && g_activePlacer){
+				g_activePlacer.remove();
+				g_activePlacer = null;
+			}
+		}
+	});
+	$("body").get(0).addEventListener("mousemove", function(e){
+		if(g_moving_player && g_moving_player != null){
+			g_moving_player.css("left", e.pageX + g_moving_player.get(0).dx);
+			g_moving_player.css("top", e.pageY + g_moving_player.get(0).dy);
+		}
+	});
+	$("body").get(0).addEventListener("mouseup", function(e){
+		for(var cnt; cnt = g_counter.pop() ; clearTimeout(cnt));
+	});
+	{### class ControlPanel ###
+	#}
+	var ControlPanel = function(audio){
+		{# JQ node #}
+		var ui = $("<div class=\"control-panel\"></div>");
+		{# JQ node #}
+		var back_button = $("<div class=\"back-button glyphicon button control-button\"></div>");
+		back_button.get(0).addEventListener('click', function(){ audio.setCurrentTime(0); });
+		{# JQ node #}
+		var play_button = $("<div class=\"play-button glyphicon button control-button\"></div>");
+		play_button.bind("click", function(){
+			if(play_button.hasClass("play-button"))
+				audio.play();
+			else
+				audio.pause();
+		});
+		{# JQ node #}
+		var loop_button = $("<div class=\"non-loop glyphicon button control-button\"></div>");
+		audio.setLoopStatus("non-loop");
+		loop_button.get(0).addEventListener('click', function(){
+			var status = ["non-loop", "loop-single", "loop", "loop-random"];
+			for(var i = 0 ; i < 4 ; i ++)
+				if(loop_button.hasClass(status[i])){
+					loop_button.removeClass(status[i]).addClass(status[(i+1)%4]);
+					audio.setLoopStatus(status[(i+1)%4]);
+					break;
+				}
+		});
+		{# JQ node #}
+		var volume_bar = $("<div class=\"volume-bar\"></div>");
+		for(var i = 0 ; i < 12 ; i ++)
+			volume_bar.append($("<div class='vbar vbar-on' style='margin-top: " + (21 - i) + "px;height: " + (10 + i) + "px'></div>"));
+		volume_bar.bind('click', function(e){
+			var r = this.getBoundingClientRect();
+			$(this).children().each(function(){
+				var on = (this.getBoundingClientRect().left<e.clientX);
+				$(this).removeClass(on?"vbar-off":"vbar-on").addClass(on?"vbar-on":"vbar-off");
+			});
+			audio.setVolume((e.clientX - r.left + 0.0) / (r.right - r.left));
+		});
+		node.append(back_button).append(play_button).append(loop_button).append(volume_bar);
+		this.showPlay = function(){
+			play_button.removeClass("pause-button").addClass("play-button");
+		};
+		this.showPause = function(){
+			play_button.removeClass("play-button").addClass("pause-button");
+		};
+	};
+	{### class Audio ###
+		
+		This class contain 3 main parts:
+			audio:			the DOM node control audio
+			control_panel:	provide ui button to user to control audio
+			progress_bar:	
+	#}
+	var Audio = function(progress_bar, control_panel){
+		{# setup audio ui #}
+		var node = $("<audio>Your browser doesn't support audio.</audio>");
+		this.addPauseCallback = function(callback){
+			node.get(0).addEventListener("pause", callback);
+		};
+		this.addPlayCallback = function(callback){
+			node.get(0).addEventListener("play", callback);
+		};
+		this.addTimeupdateCallback = function(callback/*(currentTime)*/){
+			node.get(0).addEventListener("timeupdate", function(){
+				callback(node.get(0).currentTime);
+			});
+		};
+		this.addEndedCallback = function(callback){
+			node.get(0).addEventListener("ended", callback);
+		};
+
+		node.bind("pause", function(e){
+			{% block PLAY_STOP %}
+			control_panel.showPause();
+			{% endblock PLAY_STOP %}
+		});
+		node.bind("play", function(e){
+			{% block PLAY_START %}
+			control_panel.showPlay();
+			{% endblock  PLAY_START %}
+		});
+		node.get(0).addEventListener('timeupdate', function(){
+			progress_bar.toProgress((this.currentTime / this.duration) * 100);
+		});
+		node.bind("ended", function(){
+			if(loopStatus == "loop-single"){
+				//player.get(0).playNewSong(player.get(0).prev_play_item);
+				player.play();
+			}
+			else if(audio.attr("loopStatus") == "loop"){
+				player.get(0).playNewSong(
+					player.get(0).prev_play_item.is(playlist.children(":last-child"))
+					||player.get(0).prev_play_item.next().is(playlist.children(":last-child"))
+					?playlist.children(":first-child")
+					:player.get(0).prev_play_item.next()
+				);
+			}
+			else if(audio.attr("loopStatus") == "loop-random"){
+			}
+		});
+		this.setLoopStatus = function(newState){
+			loopStatus = newState;
+		};
+		this.setCurrentTime = function(seekTime){
+			node.get(0).currentTime(seekTime);
+		};
+		this.getDOMNode = function(){
+			
+		};
+		this.setProgressBar = function(toProgressBar){
+			
+		};
+		this.setVolume = function(toVolume){
+			node.get(0).volume = toVolume;
+		};
+		this.play = function(){
+			node.get(0).play();
+		};
+		this.pause = function(){
+			node.get(0).pause();
+		};
+	};
+	{### class ProgressBar ###
+		CONSTRUCTOR:
+		@param: 
+	#}
+	var ProgressBar = function(audio){
+		var node = $("<div class='mprogress-bar'></div").append($("<div class='played-progress'></div>").css("width", "0%"));
+		node.get(0).addEventListener('click' ,function(event){
+			{% block PLAY_SEEK %}
+			audio.setCurrentTime(player);
+			/*var newSeekTime = audio.get(0).currentTime =
+			audio.get(0).duration * (event.clientX - this.getBoundingClientRect().left) / this.clientWidth;
+			*/
+			event.stopPropagation();
+			{% endblock PLAY_SEEK %}
+		}, false);
+		node.get(0).addEventListener('mousedown' ,function(e){e.stopPropagation();});
+		this.showProgress = function(toProgress){
+			node.children(".played-progress").css("width", toProgress + '%');
+		};
+		return bar;
+	};
+	{### class player ###
+		CONSTRUCTOR:
+		@param: playlist = {['id', 'name', 'location', 'image', 'lrc'], ...}
+		@param: pos = {x, y} | null
+			if pos == null tell if attach to body when player is created
+	#}
+	{#
+		@method: setCurrentTime
+	#}
+	var player = function(playlist, pos){
+		{% block PLAYER_MEMBER %}
+		{% endblock PLAYER_MEMBER %}
+		{#
+			private member:
+			@member: progress_bar
+			@
+		#}
+		var loopStatus = "non-loop";
+
+	};
+	return player;
+})();
+
+
+var render_player = function(objs, x, y){
+	var player = $("<div class=\"player\">");
+	player.css("left", x);
+	player.css("top", y);
+	player.get(0).playNewSong = function(item){
+		audio.get(0).pause();
+		{% block PLAY_NEW %}
+		if(player.get(0).prev_play_item)
+		{
+			progress_bar.detach();
+			var prev = player.get(0).prev_play_item;
+			prev.removeClass("playing-item").addClass("np-item");
+			prev.html(prev.get(0).obj.name);
+		}
+		{% block RENDER_NEW_PLAYING_ITEM %}
+		item.removeClass("np-item").addClass("playing-item").empty().append($("<div class='item-title'></div>").append($("<marquee class='item-marquee' direction='right'>"+item.get(0).obj.name+"</marquee>")).append(progress_bar));
+		{% endblock RENDER_NEW_PLAYING_ITEM %}
+		progress_bar.children(".played-progress").css("width", "0%");
+		player.get(0).prev_play_item = item;
+		setTimeout(function(){
+			var tmp = audio.attr("src", item.get(0).obj.location);
+			tmp.get(0).play();
+		}, 1000);
+		{% endblock PLAY_NEW %}
+	};
+	player.get(0).addEventListener("mousedown", function(e){
+		this.dx = parseInt($(this).css("left")) - e.pageX;
+		this.dy = parseInt($(this).css("top")) - e.pageY;
+		if(g_selected_player && !g_selected_player.is($(this))){
+			g_selected_player.children(".side-panel").children(".function-panel").animate({
+				height: 0,
+				top:	0,
+			}, 100);
+		}
+		function_panel.animate({
+			height: 35,
+			top: -35
+		}, 100);
+		g_selected_player = g_moving_player = $(this);
+	});
+	player.get(0).addEventListener("mouseup", function(e){
+		if(g_moving_player && g_moving_player.is($(this))) g_moving_player = null;
+	});
+
+	var side_panel = $("<div class=\"side-panel\"></div>");
+
+	var function_panel = (function(){
+		var panel = $("<div class=\"function-panel\"></div>");
+		var save_button = (function(){
+			var btn = $("<div class=\"save-button glyphicon button function-button\"></div>");
+			
+			return btn;
+		})();
+		var close_button = (function(){
+			var btn = $("<div class=\"close-button glyphicon button function-button\"></div>");
+			btn.get(0).addEventListener("click", function(){
+				player.remove();
+				g_selected_player = null;
+			});
+			return btn;
+		})();
+		panel.append(close_button).append(save_button);
+		panel.css("height", 0).css("top", 0);
+		return panel;
+	})();
+
+	var playlist = $("<div class=\"playlist\"></div>");
+	playlist.get(0).addEventListener("mousemove", function(e){
+		e.in_p = true;
+	});
+	function createItemPlacer(){
+		var placer = $("<div class=\"playitem np-item placer-active\"></div>");
+		placer.bind("click", function(){
+			g_moving.detach();
+			g_moving.removeClass("moving");
+			$(this).replaceWith(g_moving);
+			g_moving = null;
+		});
+		return placer;
+	}
+	function createPlayItem(obj){
+		var item = $("<div class=\"playitem np-item\"></div>").html(obj.name);
+		item.get(0).obj = obj;
+		item.get(0).addEventListener("click", function(e){
+			player.get(0).playNewSong(item);
+		});
+		item.get(0).addEventListener("mousedown", function(e){
+			if($(this).hasClass("playing-item")) return ;
+			var item = this;
+			g_counter.push(window.setTimeout(function(){
+				item.parentNode.removeChild(item);
+				$("body").append($(item).addClass("moving").css("left", e.pageX+20).css("top", e.pageY+10));
+				g_moving = $(item);
+			}, 1000));
+			e.stopPropagation();
+		});
+		item.get(0).addEventListener("mousemove", function(e){
+			if(g_moving){
+				if(!g_activePlacer || !g_activePlacer.parent().is($(this).parent()))
+				{
+					if(g_activePlacer) g_activePlacer.remove();
+					$(this).before(g_activePlacer = createItemPlacer());
+				}
+				else{
+					var placer = createItemPlacer();
+					$(this).replaceWith(placer);
+					g_activePlacer.replaceWith($(this));
+					g_activePlacer = placer;
+				}
+			}
+		});
+		return item;
+	}
+	function createLastItem(){
+		var item = $("<div class=\"playitem np-item\"></div>");
+		item.get(0).addEventListener("mousemove", function(e){
+			if(g_moving){
+				if($(this).prev().hasClass("placer-active"))
+					$(this).prev().remove();
+				else{
+					if(!g_activePlacer || !g_activePlacer.parent().is($(this).parent()))
+					{
+						if(g_activePlacer) g_activePlacer.remove();
+						$(this).before(g_activePlacer = createItemPlacer());
+					}
+					else{
+						var placer = createItemPlacer();
+						$(this).replaceWith(placer);
+						g_activePlacer.replaceWith($(this));
+						g_activePlacer = placer;
+					}
+				}
+			}
+		});
+		return item;
+	}
+	for(idx in objs) playlist.append(createPlayItem(objs[idx]));
+	playlist.append(createLastItem());
+	player.append(side_panel.append(function_panel)).append(audio)
+		.append(control_panel)
+		.append(playlist);
+	$("body").append(player);
+	return player;
+};
+</script>

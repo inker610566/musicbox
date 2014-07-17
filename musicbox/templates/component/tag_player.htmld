@@ -1,0 +1,9 @@
+{% extends p_tag_player %}
+
+{% block PLAY_NEW %}
+getTaglist(function(objs){
+	render_taglist(objs);
+	$("#taglist").get(0).sid = item.get(0).obj.id;
+	{{ super() }}
+}, item.get(0).obj.id);
+{% endblock %}

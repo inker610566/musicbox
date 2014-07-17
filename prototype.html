@@ -1,0 +1,520 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+<!--<link rel="stylesheet" type="text/css" href="musicbox/static/css/night.css" />-->
+<!--<link rel="stylesheet" type="text/css" href="musicbox/static/css/musicbox.css" />-->
+<style>
+body{
+	background: black;
+}
+
+#buffered_progress{
+	background: rgba(150, 150, 150, 1);
+}
+
+.played-progress{
+	background: rgba(255, 255, 255, 0.5);
+}
+
+.control-button{
+	background: black;
+	color: rgb(204, 204, 204);
+}
+
+
+.playitem-separator{
+	background: rgb(230, 230, 230);
+}
+
+.playitem{
+	color: white;
+}
+
+.vbar-on{
+	//background: LawnGreen;
+	background: rgb(120, 49, 20);
+}
+
+.vbar-off{
+	background: rgba(25, 25, 25, 1);
+}
+
+#star{
+	background: black;
+	color: yellow;
+}
+
+.placer-active{
+	background: gold;
+}
+.mprogress-bar {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	z-index: 1;
+	overflow: hidden;
+}
+
+.control-button{
+	margin: 10px;
+	float: left;
+	background: none;
+}
+
+.function-button{
+	margin: 10px;
+	float: right;
+}
+
+.playlist{
+margin: 10px;
+width: 300px;
+overflow: hidden;
+clear: left;
+}
+
+.playing-item{
+	height: 72px;
+	padding: 0px;
+	border-style: none dashed none dashed;
+	color: gold;
+}
+
+.np-item{
+	height: 35px;
+	padding: 5px;
+}
+
+.item-title{
+	height: 35px;
+	background: rgb(63, 63, 63);
+	color: gold;
+}
+.item-hr{
+height: 0;
+border: 1px dashed rgb(200,200,200);
+}
+.item-title-inner{
+position: relative;
+height: 100%;
+width: 100%;
+}
+.item-marquee{
+padding: 5px;
+width: 100%;
+height: 100%;
+}
+.item-info{
+height: 35px;
+padding: 5px;
+color: LawnGreen;
+background: black;
+font-weight: bold;
+//text-shadow: 1px 1px 1px LawnGreen;
+}
+.playitem{
+cursor: pointer;
+width: 300px;
+		white-space: nowrap;
+		 -moz-user-select: -moz-none;
+		 -khtml-user-select: none;
+		 -webkit-user-select: none;
+		 -ms-user-select: none;
+		 user-select: none;
+	color: white;
+	border-top: 1px solid white;
+	user-select: none;
+}
+
+.volume-bar{
+float: left;
+margin: 8px;
+cursor: pointer;
+}
+
+.vbar{
+width: 5px;
+float: left;
+margin: 2px;
+}
+
+.placer-active{
+background: gold;
+}
+
+.moving{
+position: absolute;
+background: pink;
+border: 1px solid white;
+}
+
+.vbar-on{
+	//background: LawnGreen;
+	background: rgb(120, 49, 20);
+}
+
+.vbar-off{
+	background: rgba(25, 25, 25, 1);
+}
+
+#star{
+	background: black;
+	color: yellow;
+}
+
+.player{
+	position: absolute;
+	width: 350px;
+	background: rgba(255,255,255, 0.15);
+	border-radius: 20px;
+}
+.loop-single:before{content:"\e115";}
+.loop-single:after{content:"1";}
+.loop:before{content:"\e115";}
+.loop-random:before{content:"\e110";}
+.non-loop:before{content:"\e115"; color: rgba(204, 204, 204,0.5);}
+.back-button:before{content:"\e071";}
+.play-button:before{content:"\e072";}
+.pause-button:before{content:"\e073";}
+.save-button:before{content:"\e081";}
+.close-button:before{content:"\e083";}
+.played-progress{height: 100%;}
+.function-panel{
+width: 100%; background: rgba(255,200,100, 1); position: absolute;
+border-radius: 20px 20px 0 0; overflow: hidden;
+}
+#sidebar{
+position: absolute;
+top: 0px;
+	left: 600px;
+	width: auto;
+	height: 100%;
+}
+#favorlist{
+	width: 200px;
+	height: 100%;
+	margin: 0;
+	background: rgba(255,255,255, 0.1);
+	float: left;
+	border: 5px double gray;
+}
+#sidetag{
+	width: 40px;
+	margin: 0;
+	background: gold;
+	padding: 10px 0;
+	border-radius: 0 10px 10px 0;
+	border: 2px solid silver;
+	font-family: Arial Black;
+	color: red;
+}
+#sidetag_wrap{
+	float: left;
+	width: 40px;
+	height: 120px;
+}
+.mylist-title{
+width: 100%;
+padding: 5px 10px;
+font-weight: bold;
+}
+.fitem{
+	list-style-type: none;
+	width: 100%;
+}
+</style>
+<body>
+<div id=sidebar>
+<ul id=favorlist>
+<li class="fitem">ABC</li>
+<li class="fitem">DEF</li>
+<li class="fitem">GHI</li>
+</ul>
+<div id=sidetag_wrap>
+<div style="height: 100px"></div>
+<div id=sidetag>
+<div class="mylist-title">M</div>
+<div class="mylist-title">Y</div>
+<div class="mylist-title">L</div>
+<div class="mylist-title">I</div>
+<div class="mylist-title">S</div>
+<div class="mylist-title">T</div>
+</div>
+</div>
+</div>
+</body>
+<script>
+var g_moving = null;
+var g_moving_player = null;
+var g_selected_player = null;
+var g_activePlacer = null;
+var g_counter = [];
+$("body").get(0).addEventListener("mousemove", function(e){
+	if(g_moving != null){
+		g_moving.css("left", e.pageX + 20);
+		g_moving.css("top", e.pageY + 10);
+		if(!e.in_p && g_activePlacer){
+			g_activePlacer.remove();
+			g_activePlacer = null;
+		}
+	}
+});
+$("body").get(0).addEventListener("mousemove", function(e){
+	if(g_moving_player && g_moving_player != null){
+		g_moving_player.css("left", e.pageX + g_moving_player.get(0).dx);
+		g_moving_player.css("top", e.pageY + g_moving_player.get(0).dy);
+	}
+});
+$("body").get(0).addEventListener("mouseup", function(e){
+	for(var cnt; cnt = g_counter.pop() ; clearTimeout(cnt));
+});
+var render_player = function(objs, x, y){
+	var progress_bar = (function (){
+		var bar = $("<div class='mprogress-bar'></div");
+	
+		bar.append($("<div class='played-progress'></div>").css("width", "0%"));
+		bar.get(0).addEventListener('click' ,function(event){
+			audio.get(0).currentTime =
+			audio.get(0).duration * (event.clientX - this.getBoundingClientRect().left) / this.clientWidth;
+			event.stopPropagation();
+		}, false);
+		bar.get(0).addEventListener('mousedown' ,function(e){e.stopPropagation();});
+		return bar;
+	})();
+	var player = $("<div class=\"player\">");
+	player.css("left", x);
+	player.css("top", y);
+	player.get(0).play = function(item){
+		if(player.get(0).prev_play_item)
+		{
+			var prev = player.get(0).prev_play_item;
+			prev.removeClass("playing-item").addClass("np-item");
+			progress_bar.detach();
+			prev.html(prev.get(0).obj.name);
+		}
+		var upperDiv = $("<div class=\"item-title\"></div>");
+		upperDiv.append($("<div class=\"item-title-inner\"></div>").append($("<marquee class='item-marquee' direction='right'>"+item.text()+"</marquee>")).append(progress_bar));
+		var hrDiv = $("<div class=\"item-hr\"></div>");
+		var lowerDiv = $("<div class=\"item-info\"></div>");
+		lowerDiv.text("ITYNITED IDENTITY");
+		item.removeClass("np-item").addClass("playing-item").empty().append(upperDiv).append(hrDiv).append(lowerDiv);
+
+		player.get(0).prev_play_item = item;
+		progress_bar.children(".played-progress").css("width", "50%");
+		
+		audio.get(0).pause();
+		setTimeout(function(){
+			var tmp = audio.attr("src", item.get(0).obj.location);
+			tmp.get(0).play();
+		}, 1000);
+		
+	};
+	player.get(0).addEventListener("mousedown", function(e){
+		this.dx = parseInt($(this).css("left")) - e.pageX;
+		this.dy = parseInt($(this).css("top")) - e.pageY;
+		if(g_selected_player && !g_selected_player.is($(this))){
+			g_selected_player.children(".side-panel").children(".function-panel").animate({
+				height: 0,
+				top:	0,
+			}, 100);
+		}
+		function_panel.animate({
+			height: 35,
+			top: -35
+		}, 100);
+		g_selected_player = g_moving_player = $(this);
+	});
+	player.get(0).addEventListener("mouseup", function(e){
+		if(g_moving_player && g_moving_player.is($(this))) g_moving_player = null;
+	});
+
+	var side_panel = $("<div class=\"side-panel\"></div>");
+
+	var function_panel = (function(){
+		var panel = $("<div class=\"function-panel\"></div>");
+		var save_button = (function(){
+			var btn = $("<div class=\"save-button glyphicon button function-button\"></div>");
+			
+			return btn;
+		})();
+		var close_button = (function(){
+			var btn = $("<div class=\"close-button glyphicon button function-button\"></div>");
+			btn.get(0).addEventListener("click", function(){
+				player.remove();
+				g_selected_player = null;
+			});
+			return btn;
+		})();
+		panel.append(close_button).append(save_button);
+		panel.css("height", 0).css("top", 0);
+		return panel;
+	})();
+
+	var audio = $("<audio>Your browser doesn't support audio.</audio>");
+	audio.bind("pause", function(e){
+		control_panel.children(".pause-button").removeClass("pause-button").addClass("play-button");
+	});
+	audio.bind("play", function(e){
+		control_panel.children(".play-button").removeClass("play-button").addClass("pause-button");
+	});
+	audio.get(0).addEventListener('timeupdate', function(){
+		progress_bar.children(".played-progress").css("width", (this.currentTime / this.duration) * 100 + '%');
+	});
+	audio.bind("ended", function(){
+		if(audio.attr("loopStatus") == "loop-single"){
+			player.get(0).play(player.get(0).prev_play_item);
+		}
+		else if(audio.attr("loopStatus") == "loop"){
+			player.get(0).play(
+				player.get(0).prev_play_item.is(playlist.children(":last-child"))
+				||player.get(0).prev_play_item.next().is(playlist.children(":last-child"))
+				?playlist.children(":first-child")
+				:player.get(0).prev_play_item.next()
+			);
+		}
+		else if(audio.attr("loopStatus") == "loop-random"){
+		}
+	});
+	var control_panel = $("<div class=\"control-panel\"></div>");
+	function createBackButton(){
+		var back_button = $("<div class=\"back-button glyphicon button control-button\"></div>");
+		back_button.get(0).addEventListener('click', function(){
+			audio.get(0).currentTime = 0;
+		});
+		return back_button;
+	}
+	function createPlayButton(){
+		var play_button = $("<div class=\"play-button glyphicon button control-button\"></div>");
+		play_button.bind("click", function(){
+			if(play_button.hasClass("play-button"))
+				audio.get(0).play();
+			else
+				audio.get(0).pause();
+		});
+		return play_button;
+	}
+	function createLoopButton(){
+		var loop_button = $("<div class=\"non-loop glyphicon button control-button\"></div>");
+		audio.attr("loopStatus", "non-loop");
+		loop_button.get(0).addEventListener('click', function(){
+			if(loop_button.hasClass("non-loop")){
+				loop_button.removeClass("non-loop").addClass("loop-single");
+				audio.attr("loopStatus", "loop-single");
+			}
+			else if(loop_button.hasClass("loop-single")){
+				loop_button.removeClass("loop-single").addClass("loop");
+				audio.attr("loopStatus", "loop");
+			}
+			else if(loop_button.hasClass("loop")){
+				loop_button.removeClass("loop").addClass("loop-random");
+				audio.attr("loopStatus", "loop-random");
+			}
+			else{
+				loop_button.removeClass("loop-random").addClass("non-loop");
+				audio.attr("loopStatus", "non-loop");
+			}
+		});
+		return loop_button;
+	}
+	function createVolumeBar(){
+		var volume_bar = $("<div class=\"volume-bar\"></div>");
+		for(var i = 0 ; i < 12 ; i ++)
+			volume_bar.append($("<div class='vbar vbar-on' style='margin-top: " + (21 - i) + "px;height: " + (10 + i) + "px'></div>"));
+		volume_bar.bind('click', function(e){
+			var r = this.getBoundingClientRect();
+			$(this).children().each(function(){
+				var on = (this.getBoundingClientRect().left<e.clientX);
+				$(this).removeClass(on?"vbar-off":"vbar-on").addClass(on?"vbar-on":"vbar-off");
+			});
+			$(this).closest(".player").children("audio").get(0).volume=(e.clientX - r.left + 0.0) / (r.right - r.left);
+		});
+		return volume_bar;
+	}
+	control_panel.append(createBackButton()).append(createPlayButton()).append(createLoopButton()).append(createVolumeBar());
+	var playlist = $("<div class=\"playlist\"></div>");
+	playlist.get(0).addEventListener("mousemove", function(e){
+		e.in_p = true;
+	});
+	function createItemPlacer(){
+		var placer = $("<div class=\"playitem np-item placer-active\"></div>");
+		placer.bind("click", function(){
+			g_moving.detach();
+			g_moving.removeClass("moving");
+			$(this).replaceWith(g_moving);
+			g_moving = null;
+		});
+		return placer;
+	}
+	function createPlayItem(obj){
+		var item = $("<div class=\"playitem np-item\"></div>").html(obj.name);
+		item.get(0).obj = obj;
+		item.get(0).addEventListener("click", function(e){
+			player.get(0).play(item);
+		});
+		item.get(0).addEventListener("mousedown", function(e){
+			if($(this).hasClass("playing-item")) return ;
+			var item = this;
+			g_counter.push(window.setTimeout(function(){
+				item.parentNode.removeChild(item);
+				$("body").append($(item).addClass("moving").css("left", e.pageX+20).css("top", e.pageY+10));
+				g_moving = $(item);
+			}, 1000));
+			e.stopPropagation();
+		});
+		item.get(0).addEventListener("mousemove", function(e){
+			if(g_moving){
+				if(!g_activePlacer || !g_activePlacer.parent().is($(this).parent()))
+				{
+					if(g_activePlacer) g_activePlacer.remove();
+					$(this).before(g_activePlacer = createItemPlacer());
+				}
+				else{
+					var placer = createItemPlacer();
+					$(this).replaceWith(placer);
+					g_activePlacer.replaceWith($(this));
+					g_activePlacer = placer;
+				}
+			}
+		});
+		return item;
+	}
+	function createLastItem(){
+		var item = $("<div class=\"playitem np-item\"></div>");
+		item.get(0).addEventListener("mousemove", function(e){
+			if(g_moving){
+				if($(this).prev().hasClass("placer-active"))
+					$(this).prev().remove();
+				else{
+					if(!g_activePlacer || !g_activePlacer.parent().is($(this).parent()))
+					{
+						if(g_activePlacer) g_activePlacer.remove();
+						$(this).before(g_activePlacer = createItemPlacer());
+					}
+					else{
+						var placer = createItemPlacer();
+						$(this).replaceWith(placer);
+						g_activePlacer.replaceWith($(this));
+						g_activePlacer = placer;
+					}
+				}
+			}
+		});
+		return item;
+	}
+	for(idx in objs) playlist.append(createPlayItem(objs[idx]));
+	playlist.append(createLastItem());
+	player.append(side_panel.append(function_panel)).append(audio)
+		.append(control_panel)
+		.append(playlist);
+	$("body").append(player);
+	return player;
+};
+$("body").ready(function(){
+	render_player([{id:1, name: 123, location:234}, {id:2, name: 223, location:234}, {id:3, name: 456, location:567}], 100,100);
+});
+$("body").ready(function(){
+	render_player([{id:1, name: 123, location:234}, {id:2, name: 223, location:234}], 500,100);
+});
+</script>

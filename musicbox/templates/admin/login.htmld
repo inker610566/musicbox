@@ -1,0 +1,5 @@
+<form action="/musicbox/admin/login" method="POST">
+	Username:<INPUT type="TEXT" name="username"><BR>
+	Password:<INPUT type="PASSWORD" name="password"><BR>
+	<input type="SUBMIT">
+</form>

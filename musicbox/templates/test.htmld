@@ -1,0 +1,96 @@
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="/musicbox/static/css/night.css" />
+<link rel="stylesheet" type="text/css" href="/musicbox/static/css/musicbox.css" />
+<!--<script src="jquery.processing.plugin.js"></script>-->
+<style>
+body{
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+#loading-background{
+	display: none;
+	position: fixed;
+	z-index: 100;
+	top: 0;
+	left: 0;
+	background: rgba(255,255,255,0.75);
+	width: 100%;
+	height: 100%;
+}
+#loading-dialog{
+position: absolute;
+left: 50%;
+top: 50%;
+width: 128px;
+height: 150px;
+margin: -150px auto auto -128px;
+}
+#loading-message{
+	margin: 0 auto;
+	text-align: center;
+}
+#loading-image{
+height: 128px;
+width: 128px;
+}
+
+</style>
+<script>
+function progressHandlingFunction(e){
+	if(e.lengthComputable)$('progress').attr({value:e.loaded,max:e.total});
+}
+function getSonglist(callback, tagid){
+	$.ajax({url: tagid?"/musicbox/api/song?tid="+tagid:"/musicbox/api/song", type: 'GET',
+		xhr: function() {
+			var myXhr = $.ajaxSettings.xhr();
+			toggleProgressbar("<progress id=\"new_song_progress\"></progress>");
+			if(myXhr.upload) myXhr.upload.addEventListener('progress',progressHandlingFunction, false);
+			return myXhr;
+		},
+		//Options to tell jQuery not to process data or worry about content-type.
+		cache: false,
+		contentType: false,
+		processData: false
+	})
+	.done(function(html){
+		callback(JSON.parse(html));
+		hiddenProgressbar();		
+	});
+}
+</script>
+<script>
+function defaultLoadingHTML(msg){
+	return "<img id=\"loading-image\" src=\"/musicbox/static/loading.gif\"><div id=\"loading-message\">"+msg+"</div>";
+}
+
+function toggleProgressbar(html){
+	//alert("wait for " + msg)
+	$("#loading-dialog").html(html);
+	$("#loading-background").css({opacity: 0.75}).show();
+}
+
+function hiddenProgressbar(){
+	$("#loading-background").hide();
+}
+
+</script>
+</head>
+
+<body id=bdy>
+	{% for header in header_templates %}
+		{% include header %}
+	{% endfor %}
+	<div id="loading-background"><div id="loading-dialog"></div></div>
+	{% for component in component_templates %}
+		{% include component %}
+	{% endfor %}
+</body>
+<script>
+$("body").ready(function(){
+	getSonglist(function(list){
+		console.log(list);
+		render_player(list, 10,50);
+	}, 0);
+});
+</script>

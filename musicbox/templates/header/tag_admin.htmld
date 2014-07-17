@@ -1,0 +1,68 @@
+{% extends "header/tag.html" %}
+{% block RENDER_TAGLIST %}
+	{{ super() }}
+	$("#taglist").append($("<li id=\"edit_tag\" class=\"tag\"><a id=\"edit_tag_in\">+NEW TAG</a></li>"));
+	$("#edit_tag_in").click(function(){
+		$(this).html("<input id='edit_tag_text' type='text'>");
+		edit_tag_text.focus();
+		$("#edit_tag_text").focusout(function(){
+			postAddNewTag(this.value, $("#taglist").get(0).sid);
+		});
+	});
+{% endblock RENDER_TAGLIST %}
+{% block TAG_MAIN %}
+	{{ super() }}
+{% block TAG_ADMIN %}
+<form name="new_tag_form"><input type=hidden name='name'><input type=hidden name='sid'></form>
+<script>
+	function addNewTagPost(tagname){
+		// escape htmlspecialchars?
+		$("<li class=\"tag\"><a>"+tagname+"</a></li>").insertBefore("#edit_tag");
+	}
+	function finishTagChange(){
+		$("#edit_tag_in").html("+NEW TAG");
+		hiddenProgressbar();
+	}
+	function postAddNewTag(tagname, sid, force){
+		var form = $("form[name='new_tag_form']");
+		form.children("[name='sid']").val(sid);
+		form.children("[name='name']").val(tagname);
+		var data = new FormData(form[0]);
+		if(force) data.append("force", "");
+		$.ajax({url: "/musicbox/api/tag", type: 'POST',
+			xhr: function() {
+				var myXhr = $.ajaxSettings.xhr();
+				toggleProgressbar(defaultLoadingHTML(tagname));
+				if(myXhr.upload) myXhr.upload.addEventListener('progress',progressHandlingFunction, false);
+				return myXhr;
+			},
+			data: data,
+			//Options to tell jQuery not to process data or worry about content-type.
+			cache: false,
+			contentType: false,
+			processData: false
+		})
+		.done(function(html){
+			if(html == "Done"){
+				addNewTagPost(tagname);
+				finishTagChange();
+			}
+			else if(html == "Duplicate"){
+				alert("Duplicate!!");
+				finishTagChange();
+			}
+			else if(html == "New"){
+				if(confirm("Create New Tag '"+tagname+"'?")){
+					postAddNewTag(tagname, sid, true);
+				}
+				else finishTagChange();
+			}
+			else throw "Unknown Reuslt " + html
+		});
+	}
+</script>
+<style>
+	#edit_tag_text{background: rgba(0,0,0,0); border: 0;}
+</style>
+{% endblock TAG_ADMIN %}
+{% endblock TAG_MAIN %}
