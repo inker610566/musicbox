@@ -1,3 +1,9 @@
 *~
 *.swp
 *.swo
+*.pyc
+*.key
+*.csr
+*.crt
+sqlconf.py
+secret.py
