@@ -7,3 +7,4 @@
 *.crt
 sqlconf.py
 secret.py
+commit.sh
