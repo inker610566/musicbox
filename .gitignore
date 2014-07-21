@@ -5,6 +5,7 @@
 *.key
 *.csr
 *.crt
-sqlconf.py
+musicbox/modules/SQLConf/*
 secret.py
 commit.sh
+

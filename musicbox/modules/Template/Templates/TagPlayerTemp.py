@@ -1,15 +1,16 @@
+from . import Template
 '''
 	decorator pattern
 '''
 class TagPlayerTemp(Template):
 	def __init__(self, template):
-		self.priorName = template.__getTemplateFile__()
+		self.priorName = template.getTemplateFile()
 	
 	def getTemplateFile(self):
-		return "header/tag_player.htmld"
+		return "component/tag_player.htmld"
 	def getParentFile(self):
 		return self.priorName
-	def getParentFile(self):
+	def getParentTagName(self):
 		return "p_tag_player"
 
 

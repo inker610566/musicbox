@@ -1,13 +1,13 @@
 from . import app
-from flask import render_template, session
+from flask import session
 from modules.SQL import executeSingleQueryReturn, executeSingleCommand
 from modules.SongQuery import getSonglist
-import modules.Template.TemplateManager
-from modules.Template.Templates import PlayerTemp
-from modules.Template.Templates import TagPlayerTemp
-from modules.Template.Templates import SongAdminTemp
-from modules.Template.Templates import TagAdminTemp
-from modules.Template.Templates import TagTemp
+from modules.Template.TemplateManager import TemplateManager
+from modules.Template.Templates.PlayerTemp import PlayerTemp
+from modules.Template.Templates.TagPlayerTemp import TagPlayerTemp
+from modules.Template.Templates.SongAdminTemp import SongAdminTemp
+from modules.Template.Templates.TagAdminTemp import TagAdminTemp
+from modules.Template.Templates.TagTemp import TagTemp
 import urllib
 import os
 
@@ -30,16 +30,7 @@ def main():
 	else:
 		tm.loadHeadTemplate(TagTemp())
 	
-	# setup player using decorator pattern
-	#params["p_tag_player"] = "component/song_player.refactor.htmld"
-	#component_templates.append("component/tag_player.htmld")
-
-	
-	#rows = getSonglist()
-	#params["untrack_files"] = getUntrackedFile()
-	
-	#return render_template("test.htmld", header_templates=header_templates, component_templates=component_templates, **params)
-	return tm.getRenderHtml()
+	return tm.getHtml()
 
 
 @app.route("/test")

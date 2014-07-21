@@ -200,24 +200,30 @@ var render_player = function(objs, x, y){
 	player.css("top", y);
 	player.get(0).playNewSong = function(item){
 		audio.get(0).pause();
-		{% block PLAY_NEW %}
-		if(player.get(0).prev_play_item)
-		{
-			progress_bar.detach();
-			var prev = player.get(0).prev_play_item;
-			prev.removeClass("playing-item").addClass("np-item");
-			prev.html(prev.get(0).obj.name);
+		if(item.is(player.get(0).prev_play_item)){
+			audio.get(0).currentTime = 0;
+			audio.get(0).play();
 		}
-		{% block RENDER_NEW_PLAYING_ITEM %}
-		item.removeClass("np-item").addClass("playing-item").empty().append($("<div class='item-title'></div>").append($("<marquee class='item-marquee' direction='right'>"+item.get(0).obj.name+"</marquee>")).append(progress_bar));
-		{% endblock RENDER_NEW_PLAYING_ITEM %}
-		progress_bar.children(".played-progress").css("width", "0%");
-		player.get(0).prev_play_item = item;
-		setTimeout(function(){
-			var tmp = audio.attr("src", item.get(0).obj.location);
-			tmp.get(0).play();
-		}, 1000);
-		{% endblock PLAY_NEW %}
+		else{
+			{% block PLAY_NEW %}
+			if(player.get(0).prev_play_item)
+			{
+				progress_bar.detach();
+				var prev = player.get(0).prev_play_item;
+				prev.removeClass("playing-item").addClass("np-item");
+				prev.html(prev.get(0).obj.name);
+			}
+			{% block RENDER_NEW_PLAYING_ITEM %}
+			item.removeClass("np-item").addClass("playing-item").empty().append($("<div class='item-title'></div>").append($("<marquee class='item-marquee' direction='right'>"+item.get(0).obj.name+"</marquee>")).append(progress_bar));
+			{% endblock RENDER_NEW_PLAYING_ITEM %}
+			progress_bar.children(".played-progress").css("width", "0%");
+			player.get(0).prev_play_item = item;
+			setTimeout(function(){
+				var tmp = audio.attr("src", item.get(0).obj.location);
+				tmp.get(0).play();
+			}, 1000);
+			{% endblock PLAY_NEW %}
+		}
 	};
 	player.get(0).addEventListener("mousedown", function(e){
 		this.dx = parseInt($(this).css("left")) - e.pageX;
