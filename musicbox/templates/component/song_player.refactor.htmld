@@ -17,6 +17,7 @@
 		{% block PLAY_SEEK %}
 			var newSeekTime
 		{% endblock %}
+		{% block PLAY_UPDATE %}
 #}
 <style>
 .control-button{
@@ -111,6 +112,7 @@ border-radius: 20px 20px 0 0; overflow: hidden;
 .playing-item{
 	height: 36px;
 	color: gold;
+	background: rgb(63, 63, 63);
 }
 .playitem{
 cursor: pointer;
@@ -124,9 +126,6 @@ width: 300px;
 	color: white;
 	border-top: 1px solid white;
 	user-select: none;
-}
-.playing-item{
-	background: rgb(63, 63, 63);
 }
 .np-item{
 	height: 35px;
@@ -278,7 +277,9 @@ var render_player = function(objs, x, y){
 		{% endblock  PLAY_START %}
 	});
 	audio.get(0).addEventListener('timeupdate', function(){
+		{% block PLAY_UPDATE %}
 		progress_bar.children(".played-progress").css("width", (this.currentTime / this.duration) * 100 + '%');
+		{% endblock PLAY_UPDATE %}
 	});
 	audio.bind("ended", function(){
 		if(audio.attr("loopStatus") == "loop-single"){

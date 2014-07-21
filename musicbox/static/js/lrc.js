@@ -39,23 +39,28 @@ var Lrc = (function(){
 				};
 			}
 			else failed("parse lyric failed");
-		var timeOutTick = null, idx;
-		function timeOutFunc(){
-			outputHandler(lines[++idx].line);
-			if(idx+1<lines.length)
-				timeOutTick = setTimeout(timeOutFunc, (lines[idx+1].time - lines[idx].time)*1000);
-			else that.stop();
-		}
-		this.start = function(sec){
-			idx = seekIdx(sec);
-			if(idx < lines.length){
-				outputHandler(lines[idx].line);
-				if(idx+1<lines.length)
-					timeOutTick = setTimeout(timeOutFunc, (lines[idx+1].time - sec)*1000);
+		var timeOutTick = null, idx = 0;
+//		function timeOutFunc(){
+//			outputHandler(lines[++idx].line);
+//			if(idx+1<lines.length)
+//				timeOutTick = setTimeout(timeOutFunc, (lines[idx+1].time - lines[idx].time)*1000);
+//			else that.stop();
+//		}
+		this.update = function(sec){
+//			if(idx < lines.length){
+//				outputHandler(lines[idx].line);
+//				if(idx+1<lines.length)
+//					timeOutTick = setTimeout(timeOutFunc, (lines[idx+1].time - sec)*1000);
+//			}
+			if(lines[idx+1].time < sec){
+				outputHandler(lines[++idx].line);
 			}
 		};
+		this.seek = function(sec){
+			idx = seekIdx(sec);
+		};
 		this.stop = function(){
-			clearTimeout(timeOutTick);
+			//clearTimeout(timeOutTick);
 		};
 	};
 	return Parser;

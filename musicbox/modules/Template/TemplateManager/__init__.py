@@ -13,17 +13,13 @@ class TemplateManager:
 		self.params = dict()
 	
 	def loadHeadTemplate(self, template):
-		self.header_templates.append(template.getTemplateFile())
-		p = template.getParentTagName()
-		if p:
-			self.params[p] = template.getParentFile()
+		template.addToParams(self.params)
+		template.addToTempList(self.header_templates)
 
 	def loadComponentTemplate(self, template):
-		self.component_templates.append(template.getTemplateFile())
-		p = template.getParentTagName()
-		if p:
-			self.params[p] = template.getParentFile()
-
+		template.addToParams(self.params)
+		template.addToTempList(self.component_templates)
+	
 	def getHtml(self):
 		return render_template(
 			"test.htmld",

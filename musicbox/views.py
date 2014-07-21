@@ -5,6 +5,7 @@ from modules.SongQuery import getSonglist
 from modules.Template.TemplateManager import TemplateManager
 from modules.Template.Templates.PlayerTemp import PlayerTemp
 from modules.Template.Templates.TagPlayerTemp import TagPlayerTemp
+from modules.Template.Templates.LrcPlayerTemp import LrcPlayerTemp
 from modules.Template.Templates.SongAdminTemp import SongAdminTemp
 from modules.Template.Templates.TagAdminTemp import TagAdminTemp
 from modules.Template.Templates.TagTemp import TagTemp
@@ -22,6 +23,7 @@ def main():
 	# prepare player -- decorator pattern
 	player = PlayerTemp()
 	player = TagPlayerTemp(player)
+	player = LrcPlayerTemp(player)
 	tm.loadComponentTemplate(player)
 
 	if session.get("sid", "") == "A":
