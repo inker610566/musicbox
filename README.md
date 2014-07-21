@@ -9,5 +9,7 @@ migrate to python-flask
 entry point for run with python build-in http server framework
 
 ##/musicbox/runserver.wsgi##
-------------------------
 entry point for run with apache
+
+##/musicbox/templates##
+
