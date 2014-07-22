@@ -17,6 +17,7 @@
 		{% block PLAY_SEEK %}
 			var newSeekTime
 		{% endblock %}
+		{% block PLAY_END %}
 		{% block PLAY_UPDATE %}
 #}
 <style>
@@ -282,6 +283,7 @@ var render_player = function(objs, x, y){
 		{% endblock PLAY_UPDATE %}
 	});
 	audio.bind("ended", function(){
+		{% block PLAY_END %}
 		if(audio.attr("loopStatus") == "loop-single"){
 			player.get(0).playNewSong(player.get(0).prev_play_item);
 		}
@@ -295,6 +297,7 @@ var render_player = function(objs, x, y){
 		}
 		else if(audio.attr("loopStatus") == "loop-random"){
 		}
+		{% endblock PLAY_END %}
 	});
 	var control_panel = $("<div class=\"control-panel\"></div>");
 	function createBackButton(){

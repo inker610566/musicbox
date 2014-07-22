@@ -58,6 +58,7 @@ var Lrc = (function(){
 		};
 		this.seek = function(sec){
 			idx = seekIdx(sec);
+			outputHandler(line[idx].line);
 		};
 		this.stop = function(){
 			//clearTimeout(timeOutTick);

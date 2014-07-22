@@ -94,3 +94,7 @@ color: LawnGreen;
 background: black;
 }
 {% endblock CSS_PLAYING_ITEM %}
+{% block PLAY_END %}
+	LrcPlayer.seek(0);
+	{{ super() }}
+{% endblock PLAY_END %}
